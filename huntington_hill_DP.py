@@ -3,7 +3,17 @@
 """
 Created on Thu Aug  2 10:58:21 2018
 
-@author: ads22
+@author: Adam Smith (adamdavisonsmith)
+
+Copyright Zhun Deng, Cynthia Dwork, and Adam Smith. 
+
+This file contains code on experiments for adusting noisy populations to be consistent with a published set of (presumably exact) approtionments performed according to the Huntingdon-Hill algorithm. 
+
+Reference: "Differential Privacy After the Fact: The Case of Congressional Apportionment" 
+by Zhun Deng, Cynthia Dwork, and Adam Smith.
+
+See accompanying Jupyter notebook for examples. 
+
 """
 
 import math
@@ -41,6 +51,15 @@ def second_argmin(x):
 
 
 def huntington_hill(populations_array,num_seats):
+    '''
+    Computes the Hungtingdon-Hill apportionment and its distance to instability 
+    given a vector of state populations, and the target number of seats. Ties are broken arbitrarily.
+    :param populations_array: array of positive integers representing state populations
+    :param num_seats: number of seats to apportion via Hungtingdon-Hill
+    :returns: dictionary with apportionment (as an array, called 'representatives'), 
+    the distance to instability (int, called 'distance to instability')
+    as well as miscellaneous internal results. Keys describe the results.
+    '''
     ### populations is a numpy array of populations
     ### num_seats is the desired number of seats to assign
     num_states = len(populations_array)
@@ -97,7 +116,7 @@ def huntington_hill(populations_array,num_seats):
     # Let's call this its "normalized deficiency"
     normalization_factors = np.sqrt(representatives*(representatives + 1))
     normalized_defs = (prev_priorities[low] - priorities) * normalization_factors
-    # Need to fix computation of normalized gap for last state. 
+    # Now we adjust the computation of normalized gap for last state. 
     # In order for it to gain a seat, it's current priority would have to move above the second 
     # highest of the priorities. 
     normalized_defs[low] = (prev_priorities[second_low] - 
@@ -294,7 +313,7 @@ def hh_projection_after_noise_on_instance(populations_array, num_seats, epsilon,
     ### num_seats is the desired number of seats to assign
     ### epsilon is the parameter used for DP noise addition (Laplace noise)
     ### num_reps is the number of attempts that are made
-    ### Returns a dictionary with miscellaneous results (sorry...)
+    ### Returns a list of miscellaneous results (sorry...)
     ref_stats = huntington_hill(populations_array, num_seats)
     ref_reps = ref_stats['representatives']
     distance_to_instab = ref_stats['distance to instability']
